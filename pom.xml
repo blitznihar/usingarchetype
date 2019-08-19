@@ -25,6 +25,17 @@
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.0</version>
+    </dependency>
+ 
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.9.4</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -62,6 +73,48 @@
 			</execution>
 		</executions>
 	</plugin>
+  <plugin>
+    <groupId>org.jvnet.jaxb2.maven2</groupId>
+    <artifactId>maven-jaxb2-plugin</artifactId>
+    <version>0.12.3</version>
+    <executions>
+        <execution>
+            <id>add-source-for-demoapp</id>
+            <goals>
+                <goal>generate</goal>
+            </goals>
+            <configuration>
+                <schemaDirectory>src/main/resources/xsd</schemaDirectory>
+                <schemaIncludes>
+                    <include>simple.xsd</include>
+                </schemaIncludes>
+                <generateDirectory>target/generated-sources/simple</generateDirectory>
+                <generatePackage>com.blitznihar.app.simple</generatePackage>
+                <!--  Other configuration options-->
+ 
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+<plugin>
+ <groupId>org.jsonschema2pojo</groupId>
+ <artifactId>jsonschema2pojo-maven-plugin</artifactId>
+ <version>0.4.34</version>
+ <configuration>
+ 
+<sourceType>json</sourceType>
+ <sourceDirectory>${basedir}/src/main/resources/json</sourceDirectory>
+ <targetPackage>com.blitznihar.app</targetPackage>
+ <useCommonsLang3>true</useCommonsLang3>
+ </configuration>
+ <executions>
+ <execution>
+ <goals>
+ <goal>generate</goal>
+ </goals>
+ </execution>
+ </executions>
+ </plugin>
   </plugins>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
@@ -76,11 +129,29 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.0</version>
         </plugin>
-        <plugin>
+                <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.22.1</version>
         </plugin>
-        
+        <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>jaxb2-maven-plugin</artifactId>
+            <version>${project.version}</version>
+            <executions>
+                <execution>
+                    <id>xjc</id>
+                    <goals>
+                        <goal>xjc</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <sources>
+                    <source>src/main/xsd/simple.xsd</source>
+                </sources>
+                <packageName>com.blitznihar.app</packageName>
+            </configuration>
+        </plugin>
         <plugin>
         <artifactId>maven-shade-plugin</artifactId>
         <executions>
@@ -92,7 +163,7 @@
           </execution>
         </executions>
         <configuration>
-          <finalName>${artifactId}-${version}</finalName>
+          <finalName>${project.artifactId}-${project.version}</finalName>
         </configuration>
       </plugin>
         <plugin>
